@@ -1,0 +1,175 @@
+local MyUILibrary = {}
+
+function MyUILibrary:CreateWindow(title)
+    local ScreenGui = Instance.new("ScreenGui")
+    local MainFrame = Instance.new("Frame")
+    local Title = Instance.new("TextLabel")
+    local TabContainer = Instance.new("Frame")
+    local ContentFrame = Instance.new("Frame")
+
+    ScreenGui.Name = "MyUI"
+    ScreenGui.Parent = game.CoreGui
+
+    MainFrame.Name = "MainFrame"
+    MainFrame.Parent = ScreenGui
+    MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+    MainFrame.Size = UDim2.new(0, 500, 0, 400)
+    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -200)
+    MainFrame.Active = true
+    MainFrame.Draggable = true
+
+    Title.Name = "Title"
+    Title.Parent = MainFrame
+    Title.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    Title.Size = UDim2.new(1, 0, 0, 50)
+    Title.Font = Enum.Font.SourceSans
+    Title.Text = title
+    Title.TextColor3 = Color3.new(1, 1, 1)
+    Title.TextSize = 24
+
+    TabContainer.Name = "TabContainer"
+    TabContainer.Parent = MainFrame
+    TabContainer.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+    TabContainer.Size = UDim2.new(0, 100, 1, -50)
+    TabContainer.Position = UDim2.new(0, 0, 0, 50)
+
+    ContentFrame.Name = "ContentFrame"
+    ContentFrame.Parent = MainFrame
+    ContentFrame.BackgroundColor3 = Color3.new(0.12, 0.12, 0.12)
+    ContentFrame.Size = UDim2.new(1, -100, 1, -50)
+    ContentFrame.Position = UDim2.new(0, 100, 0, 50)
+
+    local Window = {
+        ScreenGui = ScreenGui,
+        MainFrame = MainFrame,
+        Title = Title,
+        TabContainer = TabContainer,
+        ContentFrame = ContentFrame,
+        Tabs = {}
+    }
+
+    setmetatable(Window, { __index = MyUILibrary })
+    return Window
+end
+
+function MyUILibrary:CreateTab(name)
+    local TabButton = Instance.new("TextButton")
+    local TabContent = Instance.new("Frame")
+
+    TabButton.Name = "TabButton"
+    TabButton.Parent = self.TabContainer
+    TabButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    TabButton.Size = UDim2.new(1, 0, 0, 50)
+    TabButton.Font = Enum.Font.SourceSans
+    TabButton.Text = name
+    TabButton.TextColor3 = Color3.new(1, 1, 1)
+    TabButton.TextSize = 18
+
+    TabContent.Name = "TabContent"
+    TabContent.Parent = self.ContentFrame
+    TabContent.BackgroundColor3 = Color3.new(0.12, 0.12, 0.12)
+    TabContent.Size = UDim2.new(1, 0, 1, 0)
+    TabContent.Visible = false
+
+    TabButton.MouseButton1Click:Connect(function()
+        for _, tab in pairs(self.Tabs) do
+            tab.TabContent.Visible = false
+        end
+        TabContent.Visible = true
+    end)
+
+    local Tab = {
+        TabButton = TabButton,
+        TabContent = TabContent,
+        Sections = {}
+    }
+
+    table.insert(self.Tabs, Tab)
+    setmetatable(Tab, { __index = MyUILibrary })
+    return Tab
+end
+
+function MyUILibrary:CreateSection(name)
+    local SectionFrame = Instance.new("Frame")
+    local SectionTitle = Instance.new("TextLabel")
+    local SectionContent = Instance.new("Frame")
+
+    SectionFrame.Name = "SectionFrame"
+    SectionFrame.Parent = self.TabContent
+    SectionFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+    SectionFrame.Size = UDim2.new(1, -10, 0, 100)
+    SectionFrame.Position = UDim2.new(0, 5, 0, #self.Sections * 105 + 5)
+
+    SectionTitle.Name = "SectionTitle"
+    SectionTitle.Parent = SectionFrame
+    SectionTitle.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    SectionTitle.Size = UDim2.new(1, 0, 0, 25)
+    SectionTitle.Font = Enum.Font.SourceSans
+    SectionTitle.Text = name
+    SectionTitle.TextColor3 = Color3.new(1, 1, 1)
+    SectionTitle.TextSize = 18
+
+    SectionContent.Name = "SectionContent"
+    SectionContent.Parent = SectionFrame
+    SectionContent.BackgroundColor3 = Color3.new(0.18, 0.18, 0.18)
+    SectionContent.Size = UDim2.new(1, 0, 1, -25)
+    SectionContent.Position = UDim2.new(0, 0, 0, 25)
+
+    local Section = {
+        SectionFrame = SectionFrame,
+        SectionTitle = SectionTitle,
+        SectionContent = SectionContent,
+        Buttons = {}
+    }
+
+    table.insert(self.Sections, Section)
+    setmetatable(Section, { __index = MyUILibrary })
+    return Section
+end
+
+function MyUILibrary:CreateButton(name, callback)
+    local Button = Instance.new("TextButton")
+
+    Button.Name = "Button"
+    Button.Parent = self.SectionContent
+    Button.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    Button.Size = UDim2.new(1, -10, 0, 30)
+    Button.Position = UDim2.new(0, 5, 0, #self.Buttons * 35 + 5)
+    Button.Font = Enum.Font.SourceSans
+    Button.Text = name
+    Button.TextColor3 = Color3.new(1, 1, 1)
+    Button.TextSize = 18
+
+    Button.MouseButton1Click:Connect(callback)
+
+    table.insert(self.Buttons, Button)
+end
+
+-- Example usage:
+local Window = MyUILibrary:CreateWindow("My Custom UI")
+local MainTab = Window:CreateTab("Main")
+local Section1 = MainTab:CreateSection("Section 1")
+Section1:CreateButton("Button 1", function()
+    print("Button 1 clicked")
+end)
+Section1:CreateButton("Button 2", function()
+    print("Button 2 clicked")
+end)
+
+local AnotherTab = Window:CreateTab("Another Tab")
+local Section2 = AnotherTab:CreateSection("Section 2")
+Section2:CreateButton("Trolling hub v4", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/John142-dot/trollhubvanything/main/REVISEDtr",true))()
+    print("Button A clicked")
+end)
+Section2:CreateButton("Hitbox expander", function()
+    loadstring(game:HttpGet("https://pastefy.app/oEseAYNN/raw",true))()
+    print("Button B clicked")
+end)
+Section2:CreateButton("Reach", function()
+    loadstring(game:HttpGet("https://pastefy.app/sPi9rFRt/raw",true))()
+    print("Button B clicked")
+end)
+Section2:CreateButton("TEST CHECK CONSOLE", function()
+    print("SHAURDJISIWIIW87")
+end)
